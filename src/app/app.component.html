@@ -1,4 +1,15 @@
 <!--<button (click)="click()"></button>-->
 
+<br />
+<div>--------------Data--------------</div>
+<ngx-json-viewer [json]="dailySync$ | async"></ngx-json-viewer>
 
-<ngx-json-viewer [json]="result"></ngx-json-viewer>
+
+<div></div>
+
+<div> ---- </div>
+<ngx-json-viewer [json]="issues$ | async"></ngx-json-viewer>
+
+<br />
+<div>Raw Data</div>
+<ngx-json-viewer [json]="rawIssuesResult$ | async"></ngx-json-viewer>

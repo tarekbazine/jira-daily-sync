@@ -2,7 +2,7 @@
   "name": "Hello World",
   "description": "Atlassian Connect app",
   "key": "com.example.myapp",
-  "baseUrl": "https://305613eb65ba.ngrok.io",
+  "baseUrl": "https://b8ab0c59bbb9.ngrok.io",
   "vendor": {
     "name": "Example, Inc.",
     "url": "http://example.com"
@@ -10,9 +10,7 @@
   "authentication": {
     "type": "NONE"
   },
-  "scopes": [
-    "READ"
-  ],
+  "scopes": ["READ"],
   "apiVersion": 1,
   "modules": {
     "generalPages": [
