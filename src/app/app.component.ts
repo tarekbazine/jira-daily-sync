@@ -1,7 +1,14 @@
 import { Component, NgZone, OnInit } from '@angular/core';
 import { BehaviorSubject, forkJoin, Observable } from 'rxjs';
-import * as moment from 'moment';
-import { switchMap } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
+import {
+  datesBounds,
+  groupIssues,
+  structureHistory,
+  transformHistoryChange,
+  transformIssues,
+} from './fn';
+import { DailySyncModel, IssueModel } from './models';
 
 declare let AP: AtlassianConnect;
 
@@ -22,6 +29,9 @@ export class AppComponent implements OnInit {
     switchMap((value) => {
       // console.log(value);
       return this.setForIssue(value);
+    }),
+    map((value) => {
+      return structureHistory(value);
     })
   );
 
@@ -32,13 +42,11 @@ export class AppComponent implements OnInit {
   }
 
   private init(): void {
-    const jqlDates = `UPDATED >= ${formatDate(
-      moment().startOf('week')
-    )} AND UPDATED <= ${formatDate(moment().weekday(7))}`;
+    const dates = datesBounds();
+
+    const jqlDates = `UPDATED >= ${dates.begins} AND UPDATED <= ${dates.ends}`;
 
     const jqlStatus = `STATUS in (Done, "In Progress")`;
-
-    // console.log(moment().endOf('week'));
 
     const jQL = jqlDates + ' AND ' + jqlStatus;
     console.log(jQL);
@@ -122,111 +130,6 @@ export class AppComponent implements OnInit {
   }
 }
 
-function formatDate(m: moment.Moment): string {
-  return m.format('YYYY-MM-DD');
-}
-
-function transformIssues(rawIssues: []): IssueModel[] {
-  return rawIssues.map<IssueModel>((issue: any) => {
-    return {
-      id: issue.id,
-      key: issue.key,
-      type: issue.fields.issuetype.name,
-      url: issue.self,
-      status: issue.fields.status.name,
-      project: issue.fields.project.name,
-      assigneeAccountId: issue.fields.assignee?.accountId,
-      assigneeDisplayName: issue.fields.assignee?.displayName,
-      updated: issue.fields.updated,
-      updatedDate: formatDate(moment(issue.fields.updated)),
-    };
-  });
-}
-
-function groupIssues(issues: IssueModel[]): DailySyncModel {
-  const groupByDates = issues.reduce<GroupIssuesByDate>(
-    (previousValue: GroupIssuesByDate, issue: IssueModel) => {
-      previousValue[issue.updatedDate] = previousValue[issue.updatedDate] || [];
-
-      previousValue[issue.updatedDate].push(issue);
-      return previousValue;
-    },
-    {} as GroupIssuesByDate
-  );
-
-  const dailySyncModel: DailySyncModel = {};
-
-  Object.entries(groupByDates).forEach(([key, value]) => {
-    dailySyncModel[key] = value.reduce<UserDailySyncModel>(
-      (previousValue: UserDailySyncModel, issue: IssueModel) => {
-        previousValue[issue.assigneeAccountId] =
-          previousValue[issue.assigneeAccountId] || [];
-
-        previousValue[issue.assigneeAccountId].push(issue);
-        previousValue.date = key;
-        return previousValue;
-      },
-      {} as UserDailySyncModel
-    );
-    dailySyncModel[key].date = key;
-  });
-
-  return dailySyncModel;
-}
-
-function transformHistoryChange(res: any): StatusHistoryChangeModel[] {
-  return res.values
-    .filter((change) => change.items[0].fieldId === 'status')
-    .map((change) => {
-      return {
-        at: change.created,
-        fromId: change.items[0].from,
-        fromString: change.items[0].fromString,
-        toId: change.items[0].to,
-        _toString: change.items[0].toString,
-      } as StatusHistoryChangeModel;
-    });
-}
-
-interface DailySyncModel {
-  [date: string]: UserDailySyncModel;
-}
-
-interface GroupIssuesByDate {
-  [date: string]: IssueModel[];
-  // date: any; // string
-}
-
-interface UserDailySyncModel {
-  [assigneeAccountId: string]: IssueModel[];
-  date: any; // string
-}
-
-interface IssueModel {
-  id: string;
-  key: string;
-  type: string; // fields.issuetype.name
-  url: string; // self
-  status: string; // fields.status.name
-  project: string; // fields.project.name
-  assigneeAccountId: string; // fields.assignee.accountId
-  assigneeDisplayName: string; // fields.assignee.displayName
-  // updated: string; // fields.updated
-  updatedDate: string; // fields.updated
-  // ------ calculated -------
-  changelog?: StatusHistoryChangeModel[]; // extra info
-}
-
-interface StatusHistoryChangeModel {
-  at: string;
-  fromString: string;
-  fromId: string;
-  _toString: string;
-  toId: string;
-}
-
-// ----
-
-interface AtlassianConnect {
+export interface AtlassianConnect {
   request: (_: any) => any;
 }
