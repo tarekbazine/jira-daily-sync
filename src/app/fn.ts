@@ -12,6 +12,8 @@ moment.locale('en', {
   },
 });
 
+export const STATUS = ['Done', 'In Progress']; // setting
+
 export function formatDate(m: moment.Moment): string {
   return m.format('YYYY-MM-DD');
 }
@@ -22,6 +24,7 @@ export function transformIssues(rawIssues: []): IssueModel[] {
       id: issue.id,
       key: issue.key,
       type: issue.fields.issuetype.name,
+      summary: issue.fields.summary,
       url: issue.self,
       status: issue.fields.status.name,
       project: issue.fields.project.name,
@@ -53,12 +56,12 @@ export function groupIssues(issues: IssueModel[]): DailySyncModel {
           previousValue[issue.assigneeAccountId] || [];
 
         previousValue[issue.assigneeAccountId].push(issue);
-        previousValue.date = key;
+        // previousValue.date = key;
         return previousValue;
       },
       {} as UserDailySyncModel
     );
-    dailySyncModel[key].date = key;
+    // dailySyncModel[key].date = key;
   });
 
   return dailySyncModel;
@@ -94,11 +97,17 @@ export function structureHistory(
     Object.entries(value).forEach(([k, v]) => {
       if (Array.isArray(v)) {
         v.forEach((issue) => {
+          Object.freeze(issue);
+
           issue.changelog.forEach((change) => {
             const date = moment(change.at);
             const dateFormatted = formatDate(date);
 
-            if (date.isBetween(begins, ends, 'day', '[]')) {
+            if (
+              date.isBetween(begins, ends, 'day', '[]') &&
+              STATUS.includes(change._toString) &&
+              change._toString !== issue.status
+            ) {
               dailySyncModel[dateFormatted] =
                 dailySyncModel[dateFormatted] || ({} as UserDailySyncModel);
 
@@ -106,9 +115,15 @@ export function structureHistory(
                 dailySyncModel[dateFormatted][issue.assigneeAccountId] || [];
 
               const clone = { ...issue, statusFromHistory: change._toString };
+
+              // if (
+              //   dailySyncModel[dateFormatted][issue.assigneeAccountId]
+              //
+              // ){
               dailySyncModel[dateFormatted][issue.assigneeAccountId].push(
                 clone
               );
+              // }
             }
           });
         });

@@ -4,6 +4,7 @@ import { map, switchMap } from 'rxjs/operators';
 import {
   datesBounds,
   groupIssues,
+  STATUS,
   structureHistory,
   transformHistoryChange,
   transformIssues,
@@ -18,7 +19,7 @@ declare let AP: AtlassianConnect;
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit {
-  title = 'jira-daily-sync';
+  public URL = 'https://thinkers-dz.atlassian.net/browse/'; // todo get dynamically ?
 
   public rawIssuesResult$ = new BehaviorSubject({ empty: true });
   public issues$ = new BehaviorSubject<IssueModel[]>([]);
@@ -31,7 +32,7 @@ export class AppComponent implements OnInit {
       return this.setForIssue(value);
     }),
     map((value) => {
-      return structureHistory(value);
+      return structureHistory(JSON.parse(JSON.stringify(value)));
     })
   );
 
@@ -46,7 +47,12 @@ export class AppComponent implements OnInit {
 
     const jqlDates = `UPDATED >= ${dates.begins} AND UPDATED <= ${dates.ends}`;
 
-    const jqlStatus = `STATUS in (Done, "In Progress")`;
+    const jqlStatus = `STATUS in (${STATUS.map((value) => {
+      if (value.includes(' ')) {
+        return '"' + value + '"';
+      }
+      return value;
+    }).join(',')})`;
 
     const jQL = jqlDates + ' AND ' + jqlStatus;
     console.log(jQL);

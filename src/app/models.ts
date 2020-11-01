@@ -5,12 +5,13 @@ export interface DailySyncModel {
 
 export interface UserDailySyncModel {
   [assigneeAccountId: string]: IssueModel[];
-  date: any; // string
+  // date: any; // string
 }
 
 export interface IssueModel {
   id: string;
   key: string;
+  summary: string; // fields.summary
   type: string; // fields.issuetype.name
   url: string; // self
   status: string; // fields.status.name
