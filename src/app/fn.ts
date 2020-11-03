@@ -12,7 +12,7 @@ moment.locale('en', {
   },
 });
 
-export const STATUS = ['Done', 'In Progress']; // setting
+export const STATUS = ['Planned For Today', 'In Progress', 'In Code Review']; // settings
 
 export function formatDate(m: moment.Moment): string {
   return m.format('YYYY-MM-DD');
@@ -139,7 +139,8 @@ export function datesBounds(): { begins: string; ends: string } {
 
   return {
     begins: formatDate(moment().startOf('week')),
-    ends: formatDate(moment().weekday(7)),
+    ends: formatDate(moment().endOf('week')),
+    // ends: formatDate(moment().weekday(7)),
   };
 }
 

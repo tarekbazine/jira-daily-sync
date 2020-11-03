@@ -19,7 +19,7 @@ declare let AP: AtlassianConnect;
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit {
-  public URL = 'https://thinkers-dz.atlassian.net/browse/'; // todo get dynamically ?
+  public URL = 'https://estateos.atlassian.net/browse/'; // todo get dynamically ?
 
   public rawIssuesResult$ = new BehaviorSubject({ empty: true });
   public issues$ = new BehaviorSubject<IssueModel[]>([]);

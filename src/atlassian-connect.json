@@ -1,8 +1,8 @@
 {
-  "name": "Hello World",
-  "description": "Atlassian Connect app",
+  "name": "Daily sync",
+  "description": "Daily sync jira app.",
   "key": "com.example.myapp",
-  "baseUrl": "https://b8ab0c59bbb9.ngrok.io",
+  "baseUrl": "http://dev.coliv.com:7777",
   "vendor": {
     "name": "Example, Inc.",
     "url": "http://example.com"
@@ -16,10 +16,10 @@
     "generalPages": [
       {
         "url": "/index.html",
-        "key": "hello-world",
+        "key": "daily-sync",
         "location": "system.top.navigation.bar",
         "name": {
-          "value": "Greeting"
+          "value": "Daily sync"
         }
       }
     ]
