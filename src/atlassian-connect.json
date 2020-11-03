@@ -1,11 +1,11 @@
 {
   "name": "Daily sync",
   "description": "Daily sync jira app.",
-  "key": "com.example.myapp",
-  "baseUrl": "http://dev.coliv.com:7777",
+  "key": "com.coliv.jira-daily-sync",
+  "baseUrl": "https://jira-daily-sync.herokuapp.com",
   "vendor": {
-    "name": "Example, Inc.",
-    "url": "http://example.com"
+    "name": "Tarek BAZINE",
+    "url": "https://terrybaz.github.io/cv/"
   },
   "authentication": {
     "type": "NONE"
