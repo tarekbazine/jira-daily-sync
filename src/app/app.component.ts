@@ -3,6 +3,7 @@ import { BehaviorSubject, forkJoin, interval, Observable } from 'rxjs';
 import { debounce, map, switchMap } from 'rxjs/operators';
 import {
   datesBounds,
+  formatDate,
   groupIssues,
   structureHistory,
   transformHistoryChange,
@@ -12,6 +13,7 @@ import { DailySyncModel, IssueModel, SettingsModel } from './models';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { FormControl, FormGroup } from '@angular/forms';
+import * as moment from 'moment';
 
 declare let AP: AtlassianConnect;
 
@@ -58,14 +60,16 @@ export class AppComponent implements OnInit {
         if (value.start && value.end) {
           this.settings$.next({
             ...this.settings$.getValue(),
-            startRangeDate: value.start,
-            endRangeDate: value.end,
+            startRangeDate: formatDate(moment(value.start)),
+            endRangeDate: formatDate(moment(value.end)),
           });
         }
       });
 
     this.initListner();
 
+    // todo
+    // "baseUrl": "https://jira-daily-sync.netlify.app",
     this.settings$.next({
       startRangeDate: this.dates.begins,
       endRangeDate: this.dates.ends,

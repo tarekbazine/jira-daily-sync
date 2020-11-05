@@ -12,8 +12,11 @@ export interface IssueModel {
   key: string;
   summary: string; // fields.summary
   type: string; // fields.issuetype.name
+  typeIconUrl: string; // fields.issuetype.iconUrl
   url: string; // self
   status: string; // fields.status.name
+  priority: string; // fields.priority.name
+  priorityIconUrl: string; // fields.priority.iconUrl
   project: string; // fields.project.name
   assigneeAccountId: string; // fields.assignee.accountId
   assigneeDisplayName: string; // fields.assignee.displayName
