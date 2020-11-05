@@ -1,20 +1,97 @@
-<div *ngFor="let item of dailySync$ | async | keyvalue" style="margin: 20px 0">
-  <h4 class="date">{{ item.key }}</h4>
+<br />
 
-  <div class="user-issues-wrapper" *ngFor="let x of item.value | keyvalue">
-    <h5>&#8702; {{ x.value[0].assigneeDisplayName }}</h5>
+<mat-form-field class="example-chip-list">
+  <mat-chip-list #chipList aria-label="Fruit selection">
+    <mat-chip
+      *ngFor="let status of (settings$ | async).status"
+      [selectable]="true"
+      [removable]="true"
+      (removed)="removeStatusChips(status)"
+    >
+      {{ status }}
+      <mat-icon matChipRemove *ngIf="true">cancel</mat-icon>
+    </mat-chip>
+    <input
+      placeholder="Status"
+      [matChipInputFor]="chipList"
+      [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+      [matChipInputAddOnBlur]="true"
+      (matChipInputTokenEnd)="addStatusChips($event)"
+    />
+  </mat-chip-list>
+</mat-form-field>
 
-    <div class="issue-wrapper" *ngFor="let issue of x.value">
-      {{ issue.summary }}
-<!--      <span>[{{ issue.status }}]</span>-->
-<!--      <span>H[{{ issue.statusFromHistory }}]</span>-->
-      <span>[{{ issue.statusFromHistory || issue.status }}]</span>
-      <a style="padding: 0 5px" href="{{ URL + issue.key }}" target="_blank"
-        >{{ issue.key }} &#x02218; {{ issue.type }}</a
-      >
+<br />
+
+<mat-form-field appearance="fill">
+  <mat-label>Date range</mat-label>
+  <mat-date-range-input
+    [formGroup]="dateRange"
+    [rangePicker]="picker">
+    <input
+      matStartDate
+      formControlName="start"
+      placeholder="Start date"
+    />
+    <input
+      matEndDate
+      formControlName="end"
+      placeholder="End date"
+    />
+  </mat-date-range-input>
+  <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+  <mat-date-range-picker #picker></mat-date-range-picker>
+</mat-form-field>
+
+<br />
+
+<mat-accordion multi>
+  <mat-expansion-panel
+    *ngFor="let item of dailySync$ | async | keyvalue"
+    style="margin: 20px 0"
+  >
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <h4 class="date">{{ item.key }}</h4>
+      </mat-panel-title>
+
+      <!--      <mat-panel-description>-->
+      <!--      </mat-panel-description>-->
+    </mat-expansion-panel-header>
+
+    <div class="user-issues-wrapper" *ngFor="let x of item.value | keyvalue">
+      <h5>&#8702; {{ x.value[0].assigneeDisplayName }}</h5>
+
+      <div class="issue-wrapper" *ngFor="let issue of x.value">
+        {{ issue.summary }}
+        <!--      <span>[{{ issue.status }}]</span>-->
+        <!--      <span>H[{{ issue.statusFromHistory }}]</span>-->
+        <span>[{{ issue.statusFromHistory || issue.status }}]</span>
+        <a style="padding: 0 5px" href="{{ URL + issue.key }}" target="_blank"
+          >{{ issue.key }} &#x02218; {{ issue.type }}</a
+        >
+      </div>
     </div>
-  </div>
-</div>
+  </mat-expansion-panel>
+</mat-accordion>
+
+<!--<div *ngFor="let item of dailySync$ | async | keyvalue" style="margin: 20px 0">-->
+<!--  <h4 class="date">{{ item.key }}</h4>-->
+
+<!--  <div class="user-issues-wrapper" *ngFor="let x of item.value | keyvalue">-->
+<!--    <h5>&#8702; {{ x.value[0].assigneeDisplayName }}</h5>-->
+
+<!--    <div class="issue-wrapper" *ngFor="let issue of x.value">-->
+<!--      {{ issue.summary }}-->
+<!--&lt;!&ndash;      <span>[{{ issue.status }}]</span>&ndash;&gt;-->
+<!--&lt;!&ndash;      <span>H[{{ issue.statusFromHistory }}]</span>&ndash;&gt;-->
+<!--      <span>[{{ issue.statusFromHistory || issue.status }}]</span>-->
+<!--      <a style="padding: 0 5px" href="{{ URL + issue.key }}" target="_blank"-->
+<!--        >{{ issue.key }} &#x02218; {{ issue.type }}</a-->
+<!--      >-->
+<!--    </div>-->
+<!--  </div>-->
+<!--</div>-->
 
 <!--&#9657;-->
 <!--<div>&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;Data&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;</div>-->

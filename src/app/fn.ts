@@ -2,6 +2,7 @@ import * as moment from 'moment';
 import {
   DailySyncModel,
   IssueModel,
+  SettingsModel,
   StatusHistoryChangeModel,
   UserDailySyncModel,
 } from './models';
@@ -11,8 +12,6 @@ moment.locale('en', {
     dow: 1, // Monday is the first day of the week.
   },
 });
-
-export const STATUS = ['Planned For Today', 'In Progress', 'In Code Review']; // settings
 
 export function formatDate(m: moment.Moment): string {
   return m.format('YYYY-MM-DD');
@@ -85,7 +84,8 @@ export function transformHistoryChange(res: any): StatusHistoryChangeModel[] {
 }
 
 export function structureHistory(
-  dailySyncModel: DailySyncModel
+  dailySyncModel: DailySyncModel,
+  settings: SettingsModel
 ): DailySyncModel {
   // todo um-mutable
 
@@ -105,7 +105,7 @@ export function structureHistory(
 
             if (
               date.isBetween(begins, ends, 'day', '[]') &&
-              STATUS.includes(change._toString) &&
+              settings.status.includes(change._toString) &&
               change._toString !== issue.status
             ) {
               dailySyncModel[dateFormatted] =

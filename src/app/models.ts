@@ -1,4 +1,3 @@
-
 export interface DailySyncModel {
   [date: string]: UserDailySyncModel;
 }
@@ -33,3 +32,8 @@ export interface StatusHistoryChangeModel {
   toId: string;
 }
 
+export interface SettingsModel {
+  startRangeDate: string;
+  endRangeDate: string;
+  status: string[];
+}

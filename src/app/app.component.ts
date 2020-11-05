@@ -1,15 +1,17 @@
 import { Component, NgZone, OnInit } from '@angular/core';
-import { BehaviorSubject, forkJoin, Observable } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { BehaviorSubject, forkJoin, interval, Observable } from 'rxjs';
+import { debounce, map, switchMap } from 'rxjs/operators';
 import {
   datesBounds,
   groupIssues,
-  STATUS,
   structureHistory,
   transformHistoryChange,
   transformIssues,
 } from './fn';
-import { DailySyncModel, IssueModel } from './models';
+import { DailySyncModel, IssueModel, SettingsModel } from './models';
+import { COMMA, ENTER } from '@angular/cdk/keycodes';
+import { MatChipInputEvent } from '@angular/material/chips';
+import { FormControl, FormGroup } from '@angular/forms';
 
 declare let AP: AtlassianConnect;
 
@@ -23,6 +25,7 @@ export class AppComponent implements OnInit {
 
   public rawIssuesResult$ = new BehaviorSubject({ empty: true });
   public issues$ = new BehaviorSubject<IssueModel[]>([]);
+  public settings$ = new BehaviorSubject<SettingsModel>(null);
 
   // tslint:disable-next-line:variable-name
   public _dailySync$ = new BehaviorSubject<DailySyncModel>({});
@@ -32,59 +35,94 @@ export class AppComponent implements OnInit {
       return this.setForIssue(value);
     }),
     map((value) => {
-      return structureHistory(JSON.parse(JSON.stringify(value)));
+      return structureHistory(
+        JSON.parse(JSON.stringify(value)),
+        this.settings$.getValue()
+      );
     })
   );
 
+  readonly separatorKeysCodes: number[] = [ENTER, COMMA];
+
+  readonly dates = datesBounds();
+  dateRange = new FormGroup({
+    start: new FormControl(this.dates.begins),
+    end: new FormControl(this.dates.ends),
+  });
   constructor(private ngZone: NgZone) {}
 
   ngOnInit(): void {
-    this.init();
+    this.dateRange.valueChanges
+      .pipe(debounce(() => interval(500)))
+      .subscribe((value) => {
+        if (value.start && value.end) {
+          this.settings$.next({
+            ...this.settings$.getValue(),
+            startRangeDate: value.start,
+            endRangeDate: value.end,
+          });
+        }
+      });
+
+    this.initListner();
+
+    this.settings$.next({
+      startRangeDate: this.dates.begins,
+      endRangeDate: this.dates.ends,
+      // status: ['Planned For Today', 'In Progress', 'In Code Review'],
+      status: ['In Progress', 'Done'],
+    });
   }
 
-  private init(): void {
-    const dates = datesBounds();
-
-    const jqlDates = `UPDATED >= ${dates.begins} AND UPDATED <= ${dates.ends}`;
-
-    const jqlStatus = `STATUS in (${STATUS.map((value) => {
-      if (value.includes(' ')) {
-        return '"' + value + '"';
+  private initListner(): void {
+    this.settings$.subscribe((settings) => {
+      if (!settings) {
+        return;
       }
-      return value;
-    }).join(',')})`;
 
-    const jQL = jqlDates + ' AND ' + jqlStatus;
-    console.log(jQL);
+      const jqlDates = `UPDATED >= ${settings.startRangeDate} AND UPDATED <= ${settings.endRangeDate}`;
 
-    AP.request({
-      url: '/rest/api/3/search',
-      type: 'POST',
-      contentType: 'application/json',
-      data: JSON.stringify({
-        jql: jQL,
+      const jqlStatus = `STATUS in (${settings.status
+        .map((value) => {
+          if (value.includes(' ')) {
+            return '"' + value + '"';
+          }
+          return value;
+        })
+        .join(',')})`;
 
-        // todo dynamic
-        maxResults: 150,
+      const jQL = jqlDates + ' AND ' + jqlStatus;
+      console.log(jQL);
 
-        fieldsByKeys: false,
-        fields: ['*all'],
-        // fields: ['summary', 'status', 'assignee'],
-        startAt: 0,
-      }),
-      success: (responseText) => {
-        this.ngZone.run(() => {
-          this.rawIssuesResult$.next(JSON.parse(responseText));
-          this.issues$.next(transformIssues(JSON.parse(responseText).issues));
+      AP.request({
+        url: '/rest/api/3/search',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+          jql: jQL,
 
-          this._dailySync$.next(
-            groupIssues(transformIssues(JSON.parse(responseText).issues))
-          );
-        });
-      },
-      error: (xhr, statusText, errorThrown) => {
-        console.error(arguments);
-      },
+          // todo dynamic
+          maxResults: 150,
+
+          fieldsByKeys: false,
+          fields: ['*all'],
+          // fields: ['summary', 'status', 'assignee'],
+          startAt: 0,
+        }),
+        success: (responseText) => {
+          this.ngZone.run(() => {
+            this.rawIssuesResult$.next(JSON.parse(responseText));
+            this.issues$.next(transformIssues(JSON.parse(responseText).issues));
+
+            this._dailySync$.next(
+              groupIssues(transformIssues(JSON.parse(responseText).issues))
+            );
+          });
+        },
+        error: (xhr, statusText, errorThrown) => {
+          console.error(arguments);
+        },
+      });
     });
   }
 
@@ -133,6 +171,47 @@ export class AppComponent implements OnInit {
         },
       });
     });
+  }
+
+  public addStatusChips(event: MatChipInputEvent): void {
+    const input = event.input;
+    const value = event.value;
+
+    // Add our fruit
+    if ((value || '').trim()) {
+      this.settings$.next({
+        ...this.settings$.getValue(),
+        status: [...this.settings$.getValue().status, value],
+      });
+    }
+
+    // Reset the input value
+    if (input) {
+      input.value = '';
+    }
+  }
+
+  public removeStatusChips(status: string): void {
+    const index = this.settings$.getValue().status.indexOf(status);
+
+    if (index >= 0) {
+      this.settings$.next({
+        ...this.settings$.getValue(),
+        status: [
+          ...this.settings$
+            .getValue()
+            .status.slice(0, index)
+            .concat(
+              this.settings$
+                .getValue()
+                .status.slice(
+                  index + 1,
+                  this.settings$.getValue().status.length
+                )
+            ),
+        ],
+      });
+    }
   }
 }
 

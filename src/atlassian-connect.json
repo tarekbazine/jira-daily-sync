@@ -2,7 +2,7 @@
   "name": "Daily sync",
   "description": "Daily sync jira app.",
   "key": "com.coliv.jira-daily-sync",
-  "baseUrl": "https://jira-daily-sync.netlify.app",
+  "baseUrl": "https://b4ce7744682c.ngrok.io",
   "vendor": {
     "name": "Tarek BAZINE",
     "url": "https://terrybaz.github.io/cv/"
