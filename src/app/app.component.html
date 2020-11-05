@@ -1,85 +1,122 @@
-<br />
+<div style="position: relative">
+  <h3 style="display: inline-block">Daily-Sync</h3>
+  <!--        <h3 style="display: inline-block">Daily-Sync 📈 &#x0222B; 🤖</h3>-->
+  <span>alpha . v0.1</span>
 
-<mat-form-field class="example-chip-list">
-  <mat-chip-list #chipList aria-label="Fruit selection">
-    <mat-chip
-      *ngFor="let status of (settings$ | async).status"
-      [selectable]="true"
-      [removable]="true"
-      (removed)="removeStatusChips(status)"
-    >
-      {{ status }}
-      <mat-icon matChipRemove *ngIf="true">cancel</mat-icon>
-    </mat-chip>
-    <input
-      placeholder="Status"
-      [matChipInputFor]="chipList"
-      [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-      [matChipInputAddOnBlur]="true"
-      (matChipInputTokenEnd)="addStatusChips($event)"
-    />
-  </mat-chip-list>
-</mat-form-field>
+  <span class="setting-btn">
+    <button mat-icon-button (click)="settingsVisible = !settingsVisible">
+      <mat-icon aria-hidden="false">settings</mat-icon>
+    </button>
+  </span>
 
-<br />
-
-<mat-form-field appearance="fill">
-  <mat-label>Date range</mat-label>
-  <mat-date-range-input [formGroup]="dateRange" [rangePicker]="picker">
-    <input matStartDate formControlName="start" placeholder="Start date" />
-    <input matEndDate formControlName="end" placeholder="End date" />
-  </mat-date-range-input>
-  <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-  <mat-date-range-picker #picker></mat-date-range-picker>
-</mat-form-field>
-
-<br />
-
-<mat-accordion multi>
-  <mat-expansion-panel
-    *ngFor="let item of dailySync$ | async | keyvalue"
-    style="margin: 20px 0"
-  >
-    <mat-expansion-panel-header>
-      <mat-panel-title>
-        <div class="date">{{ item.key }}</div>
-      </mat-panel-title>
-
-      <!--      <mat-panel-description>-->
-      <!--      </mat-panel-description>-->
-    </mat-expansion-panel-header>
-
-    <div class="user-issues-wrapper" *ngFor="let x of item.value | keyvalue">
-      <h5>&#8702; {{ x.value[0].assigneeDisplayName }}</h5>
-
-      <div class="issue-wrapper" *ngFor="let issue of x.value">
-        {{ issue.summary }}
-        <!--      <span>[{{ issue.status }}]</span>-->
-        <!--      <span>H[{{ issue.statusFromHistory }}]</span>-->
-        <span>[{{ issue.statusFromHistory || issue.status }}] </span>
-        <a
-          style="padding: 0 5px"
-          href="{{ URL + issue.key }}"
-          target="_blank"
-          >{{ issue.key }}</a
+  <div style="display: flex; flex-direction: row">
+    <!--  start: first column - data-->
+    <div style="flex: 1">
+      <mat-accordion multi>
+        <mat-expansion-panel
+          *ngFor="let item of dailySync$ | async | keyvalue"
+          style="margin: 20px 0"
         >
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <div class="date">{{ item.key }}</div>
+            </mat-panel-title>
 
-        <div style="margin-left: 5px; display: inline-flex">
-          <span>{{ issue.type }}</span>
-          <img style="padding-left: 5px" src="{{ issue.typeIconUrl }}" />
-        </div>
+            <!--      <mat-panel-description>-->
+            <!--      </mat-panel-description>-->
+          </mat-expansion-panel-header>
 
-        <div style="margin-left: 10px; display: inline-flex">
-          <span>{{ issue.priority }}</span>
-          <img
-            style="padding-left: 5px; height: 20px"
-            src="{{ issue.priorityIconUrl }}"
-          />
-        </div>
-      </div>
+          <div
+            class="user-issues-wrapper"
+            *ngFor="let x of item.value | keyvalue"
+          >
+            <h5>&#8702; {{ x.value[0].assigneeDisplayName }}</h5>
+
+            <div class="issue-wrapper" *ngFor="let issue of x.value">
+              {{ issue.summary }}
+              <!--      <span>[{{ issue.status }}]</span>-->
+              <!--      <span>H[{{ issue.statusFromHistory }}]</span>-->
+              <span>[{{ issue.statusFromHistory || issue.status }}] </span>
+              <a
+                style="padding: 0 5px"
+                href="{{ URL + issue.key }}"
+                target="_blank"
+                >{{ issue.key }}</a
+              >
+
+              <div style="margin-left: 5px; display: inline-flex">
+                <span>{{ issue.type }}</span>
+                <img style="padding-left: 5px" src="{{ issue.typeIconUrl }}" />
+              </div>
+
+              <div style="margin-left: 10px; display: inline-flex">
+                <span>{{ issue.priority }}</span>
+                <img
+                  style="padding-left: 5px; height: 20px"
+                  src="{{ issue.priorityIconUrl }}"
+                />
+              </div>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
     </div>
-  </mat-expansion-panel>
-</mat-accordion>
+    <!--  end: first column - data-->
+
+    <!--  start: 2nd column - settings-->
+    <div
+      style="
+        background: #fafafa;
+        padding: 10px;
+        margin-left: 10px;
+        width: 500px;
+      "
+      [hidden]="!settingsVisible"
+    >
+      <mat-form-field class="example-chip-list">
+        <mat-chip-list #chipList aria-label="Fruit selection">
+          <mat-chip
+            *ngFor="let status of (settings$ | async).status"
+            [selectable]="true"
+            [removable]="true"
+            (removed)="removeStatusChips(status)"
+          >
+            {{ status }}
+            <mat-icon matChipRemove *ngIf="true">cancel</mat-icon>
+          </mat-chip>
+          <input
+            placeholder="Status"
+            [matChipInputFor]="chipList"
+            [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+            [matChipInputAddOnBlur]="true"
+            (matChipInputTokenEnd)="addStatusChips($event)"
+          />
+        </mat-chip-list>
+      </mat-form-field>
+
+      <br />
+
+      <mat-form-field appearance="fill">
+        <mat-label>Date range</mat-label>
+        <mat-date-range-input [formGroup]="dateRange" [rangePicker]="picker">
+          <input
+            matStartDate
+            formControlName="start"
+            placeholder="Start date"
+          />
+          <input matEndDate formControlName="end" placeholder="End date" />
+        </mat-date-range-input>
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-date-range-picker #picker></mat-date-range-picker>
+      </mat-form-field>
+
+      <br />
+    </div>
+    <!--  end: 2nd column - settings-->
+  </div>
+
+  <br />
+</div>
 
 <!--<div *ngFor="let item of dailySync$ | async | keyvalue" style="margin: 20px 0">-->
 <!--  <h4 class="date">{{ item.key }}</h4>-->

@@ -51,6 +51,9 @@ export class AppComponent implements OnInit {
     start: new FormControl(this.dates.begins),
     end: new FormControl(this.dates.ends),
   });
+
+  public settingsVisible = false;
+
   constructor(private ngZone: NgZone) {}
 
   ngOnInit(): void {
@@ -73,8 +76,8 @@ export class AppComponent implements OnInit {
     this.settings$.next({
       startRangeDate: this.dates.begins,
       endRangeDate: this.dates.ends,
-      // status: ['Planned For Today', 'In Progress', 'In Code Review'],
-      status: ['In Progress', 'Done'],
+      status: ['Planned For Today', 'In Progress', 'In Code Review'],
+      // status: ['In Progress', 'Done'],
     });
   }
 
