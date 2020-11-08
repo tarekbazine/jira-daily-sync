@@ -1,4 +1,7 @@
-<div style="position: relative">
+<div
+  style="position: relative"
+  (window:keyup.control.x)="onToggleSpentTime($event)"
+>
   <h3 style="display: inline-block">Daily-Sync</h3>
   <!--        <h3 style="display: inline-block">Daily-Sync 📈 &#x0222B; 🤖</h3>-->
   <span>alpha . v0.1</span>
@@ -36,10 +39,21 @@
               {{ issue.summary }}
               <!--      <span>[{{ issue.status }}]</span>-->
               <!--      <span>H[{{ issue.statusFromHistory }}]</span>-->
-              <span>[{{ issue.statusFromHistory || issue.status }}] </span>
+              <span
+                style="
+                  background: #f5f5f5;
+                  padding: 5px;
+                  border-radius: 3px;
+                  /* color: white; */
+                  /*font-weight: bold;*/
+                "
+              >
+                {{ (issue | getStatus: item.key).join(" | ") }}
+              </span>
+<!--              <ngx-json-viewer [json]="issue.changelogPerDay"></ngx-json-viewer>-->
               <a
                 style="padding: 0 5px"
-                href="{{ URL + issue.key }}"
+                href="{{ (issue.url | url).origin + '/browse/' + issue.key }}"
                 target="_blank"
                 >{{ issue.key }}</a
               >
@@ -55,6 +69,15 @@
                   style="padding-left: 5px; height: 20px"
                   src="{{ issue.priorityIconUrl }}"
                 />
+              </div>
+
+              <div
+                *ngIf="showSpentTime$ | async"
+                style="margin-left: 10px; display: inline-flex"
+              >
+                <span style="font-style: italic; font-weight: bold">{{
+                  issue.timespent | humanDuration
+                }}</span>
               </div>
             </div>
           </div>

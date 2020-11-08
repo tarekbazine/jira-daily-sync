@@ -23,11 +23,10 @@ declare let AP: AtlassianConnect;
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit {
-  public URL = 'https://estateos.atlassian.net/browse/'; // todo get dynamically ?
-
   public rawIssuesResult$ = new BehaviorSubject({ empty: true });
   public issues$ = new BehaviorSubject<IssueModel[]>([]);
   public settings$ = new BehaviorSubject<SettingsModel>(null);
+  public showSpentTime$ = new BehaviorSubject<boolean>(false);
 
   // tslint:disable-next-line:variable-name
   public _dailySync$ = new BehaviorSubject<DailySyncModel>({});
@@ -81,6 +80,10 @@ export class AppComponent implements OnInit {
     });
   }
 
+  public onToggleSpentTime(_): void {
+    this.showSpentTime$.next(!this.showSpentTime$.getValue());
+  }
+
   private initListner(): void {
     this.settings$.subscribe((settings) => {
       if (!settings) {
@@ -99,7 +102,7 @@ export class AppComponent implements OnInit {
         .join(',')})`;
 
       const jQL = jqlDates + ' AND ' + jqlStatus;
-      console.log(jQL);
+      // console.log(jQL);
 
       AP.request({
         url: '/rest/api/3/search',
@@ -150,7 +153,7 @@ export class AppComponent implements OnInit {
       });
 
       forkJoin(obs).subscribe((value) => {
-        console.log(dailySyncModel);
+        // console.log(dailySyncModel);
         observer.next(dailySyncModel);
         observer.complete();
       });
@@ -167,7 +170,7 @@ export class AppComponent implements OnInit {
               JSON.parse(responseText)
             );
 
-            console.log(issueModel);
+            // console.log(issueModel);
 
             observer.next(issueModel);
             observer.complete();

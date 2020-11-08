@@ -33,6 +33,7 @@ export function transformIssues(rawIssues: []): IssueModel[] {
       assigneeAccountId: issue.fields.assignee?.accountId,
       assigneeDisplayName: issue.fields.assignee?.displayName,
       updated: issue.fields.updated,
+      timespent: issue.fields.timespent,
       updatedDate: formatDate(moment(issue.fields.updated)),
     };
   });
@@ -100,33 +101,44 @@ export function structureHistory(
     Object.entries(value).forEach(([k, v]) => {
       if (Array.isArray(v)) {
         v.forEach((issue) => {
-          Object.freeze(issue);
+          // Object.freeze(issue);
 
+          issue.changelogPerDay = {};
           issue.changelog.forEach((change) => {
             const date = moment(change.at);
             const dateFormatted = formatDate(date);
 
+            // debugger;
             if (
               date.isBetween(begins, ends, 'day', '[]') &&
-              settings.status.includes(change._toString) &&
-              change._toString !== issue.status
+              settings.status.map(s => s.toLocaleLowerCase().trim()).includes(change._toString.toLocaleLowerCase().trim())
             ) {
-              dailySyncModel[dateFormatted] =
-                dailySyncModel[dateFormatted] || ({} as UserDailySyncModel);
+              issue.changelogPerDay[dateFormatted] =
+                issue.changelogPerDay[dateFormatted] || [];
+              issue.changelogPerDay[dateFormatted].push(change._toString);
 
-              dailySyncModel[dateFormatted][issue.assigneeAccountId] =
-                dailySyncModel[dateFormatted][issue.assigneeAccountId] || [];
+              if (change._toString !== issue.status) {
+                dailySyncModel[dateFormatted] =
+                  dailySyncModel[dateFormatted] || ({} as UserDailySyncModel);
 
-              const clone = { ...issue, statusFromHistory: change._toString };
+                dailySyncModel[dateFormatted][issue.assigneeAccountId] =
+                  dailySyncModel[dateFormatted][issue.assigneeAccountId] || [];
 
-              // if (
-              //   dailySyncModel[dateFormatted][issue.assigneeAccountId]
-              //
-              // ){
-              dailySyncModel[dateFormatted][issue.assigneeAccountId].push(
-                clone
-              );
-              // }
+                const index = dailySyncModel[dateFormatted][
+                  issue.assigneeAccountId
+                ].findIndex((o) => o.id === issue.id);
+
+                if (index === -1) {
+                  const clone = {
+                    ...issue,
+                    statusFromHistory: change._toString,
+                  };
+
+                  dailySyncModel[dateFormatted][issue.assigneeAccountId].push(
+                    clone
+                  );
+                }
+              }
             }
           });
         });

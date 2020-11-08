@@ -11,9 +11,12 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import {ReactiveFormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
+import { UrlPipe } from './pipes/url.pipe';
+import { HumanDurationPipe } from './pipes/human-duration.pipe';
+import { GetStatusPipe } from './pipes/specific/get-status.pipe';
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [AppComponent, UrlPipe, HumanDurationPipe, GetStatusPipe],
   imports: [
     BrowserModule,
     NgxJsonViewerModule,

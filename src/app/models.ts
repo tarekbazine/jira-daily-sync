@@ -22,9 +22,11 @@ export interface IssueModel {
   assigneeDisplayName: string; // fields.assignee.displayName
   // updated: string; // fields.updated
   updatedDate: string; // fields.updated
+  timespent: number; // fields.timespent || aggregatetimespent
   // ------ calculated -------
-  changelog?: StatusHistoryChangeModel[]; // extra info
+  changelog?: StatusHistoryChangeModel[]; // extra info - by another API call
   statusFromHistory?: string;
+  changelogPerDay?: { [date: string]: string[] };
 }
 
 export interface StatusHistoryChangeModel {
