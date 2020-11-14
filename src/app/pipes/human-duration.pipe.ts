@@ -6,6 +6,10 @@ import * as moment from 'moment';
 })
 export class HumanDurationPipe implements PipeTransform {
   transform(seconds: number): string {
+    if (seconds == null || seconds === 0) {
+      return 'Not set';
+    }
+
     return moment.duration(seconds, 'seconds').humanize();
   }
 }

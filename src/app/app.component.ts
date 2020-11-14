@@ -14,6 +14,7 @@ import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { FormControl, FormGroup } from '@angular/forms';
 import * as moment from 'moment';
+import { getFromLocalStorage, saveToLocalStorage } from './localstorage-utils';
 
 declare let AP: AtlassianConnect;
 
@@ -72,12 +73,15 @@ export class AppComponent implements OnInit {
 
     // todo
     // "baseUrl": "https://jira-daily-sync.netlify.app",
-    this.settings$.next({
-      startRangeDate: this.dates.begins,
-      endRangeDate: this.dates.ends,
-      status: ['Planned For Today', 'In Progress', 'In Code Review'],
-      // status: ['In Progress', 'Done'],
-    });
+    const savedSettings = getFromLocalStorage();
+    this.settings$.next(
+      savedSettings || {
+        startRangeDate: this.dates.begins,
+        endRangeDate: this.dates.ends,
+        status: ['Planned For Today', 'In Progress', 'In Code Review', 'Done'],
+        // status: ['In Progress', 'Done'],
+      }
+    );
   }
 
   public onToggleSpentTime(_): void {
@@ -89,6 +93,8 @@ export class AppComponent implements OnInit {
       if (!settings) {
         return;
       }
+
+      saveToLocalStorage(settings);
 
       const jqlDates = `UPDATED >= ${settings.startRangeDate} AND UPDATED <= ${settings.endRangeDate}`;
 
