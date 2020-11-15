@@ -74,14 +74,14 @@ export class AppComponent implements OnInit {
     // todo
     // "baseUrl": "https://jira-daily-sync.netlify.app",
     const savedSettings = getFromLocalStorage();
-    this.settings$.next(
-      savedSettings || {
-        startRangeDate: this.dates.begins,
-        endRangeDate: this.dates.ends,
+    this.settings$.next({
+      ...(savedSettings || {
         status: ['Planned For Today', 'In Progress', 'In Code Review', 'Done'],
         // status: ['In Progress', 'Done'],
-      }
-    );
+      }),
+      startRangeDate: this.dates.begins,
+      endRangeDate: this.dates.ends,
+    });
   }
 
   public onToggleSpentTime(_): void {
@@ -94,7 +94,11 @@ export class AppComponent implements OnInit {
         return;
       }
 
-      saveToLocalStorage(settings);
+      saveToLocalStorage({
+        ...settings,
+        startRangeDate: null,
+        endRangeDate: null,
+      });
 
       const jqlDates = `UPDATED >= ${settings.startRangeDate} AND UPDATED <= ${settings.endRangeDate}`;
 
