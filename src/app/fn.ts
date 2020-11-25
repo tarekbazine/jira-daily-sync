@@ -72,11 +72,13 @@ export function groupIssues(issues: IssueModel[]): DailySyncModel {
 
 export function transformHistoryChange(res: any): StatusHistoryChangeModel[] {
   return res.values
-    .filter(
-      (change) => change.items[change.items.length - 1].fieldId === 'status'
-    )
+    .filter((change) => {
+      const i = change.items.findIndex((v) => v.fieldId === 'status');
+
+      return i !== -1;
+    })
     .map((change) => {
-      const x = change.items[change.items.length - 1];
+      const x = change.items[change.items.findIndex((v) => v.fieldId === 'status')];
       return {
         at: change.created,
         fromId: x.from,
@@ -111,7 +113,9 @@ export function structureHistory(
             // debugger;
             if (
               date.isBetween(begins, ends, 'day', '[]') &&
-              settings.status.map(s => s.toLocaleLowerCase().trim()).includes(change._toString.toLocaleLowerCase().trim())
+              settings.status
+                .map((s) => s.toLocaleLowerCase().trim())
+                .includes(change._toString.toLocaleLowerCase().trim())
             ) {
               issue.changelogPerDay[dateFormatted] =
                 issue.changelogPerDay[dateFormatted] || [];

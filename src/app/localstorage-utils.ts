@@ -1,6 +1,6 @@
 import { SettingsModel } from './models';
 
-const SETTINGS_KEY = 'SETTINGS_KEY_V0';
+const SETTINGS_KEY = 'SETTINGS_KEY_V0.3';
 
 export function saveToLocalStorage(settings: SettingsModel): void {
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));

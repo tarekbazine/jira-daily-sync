@@ -4,7 +4,7 @@
 >
   <h3 style="display: inline-block">Daily-Sync</h3>
   <!--        <h3 style="display: inline-block">Daily-Sync 📈 &#x0222B; 🤖</h3>-->
-  <span>alpha . v0.2</span>
+  <span>alpha . v0.3</span>
 
   <span class="setting-btn">
     <button mat-icon-button (click)="settingsVisible = !settingsVisible">
@@ -50,7 +50,7 @@
               >
                 {{ (issue | getStatus: item.key).join(" | ") }}
               </span>
-<!--              <ngx-json-viewer [json]="issue.changelogPerDay"></ngx-json-viewer>-->
+              <!--              <ngx-json-viewer [json]="issue.changelogPerDay"></ngx-json-viewer>-->
               <a
                 style="padding: 0 5px"
                 href="{{ (issue.url | url).origin + '/browse/' + issue.key }}"
@@ -132,6 +132,10 @@
         <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
         <mat-date-range-picker #picker></mat-date-range-picker>
       </mat-form-field>
+
+      <br />
+
+      <mat-checkbox color="primary" (change)="onToggleSpentTime($event)">Show logged time</mat-checkbox>
 
       <br />
     </div>

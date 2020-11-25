@@ -76,7 +76,13 @@ export class AppComponent implements OnInit {
     const savedSettings = getFromLocalStorage();
     this.settings$.next({
       ...(savedSettings || {
-        status: ['Planned For Today', 'In Progress', 'In Code Review', 'Done'],
+        status: [
+          'Planned For Today',
+          'In Progress',
+          'In Code Review',
+          'IN DESIGN REVIEW',
+          'Done',
+        ],
         // status: ['In Progress', 'Done'],
       }),
       startRangeDate: this.dates.begins,
